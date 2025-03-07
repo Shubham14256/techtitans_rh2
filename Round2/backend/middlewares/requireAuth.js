@@ -15,8 +15,20 @@ const requireAuth = async (req, res, next) => {
 
 		req.user = await User.findOne({ _id }).select("_id")
 	} catch (error) {
-		res.status(400).json({ error: "Request is not authorized" })
+		if (error.message.includes("invalid credentials")) {
+			res.status(401).json({ error: "Invalid email or password." });
+		} else {
+			res.status(400).json({ error: error.message });
+		}
+	}Acatch (error) {
+		if (error.message.includes("invalid credentials")) {
+			res.status(401).json({ error: "Invalid email or password." });
+		} else {
+			res.status(400).json({ error: error.message });
+		}
 	}
+	
+	
 }
 
 module.exports = { requireAuth }

@@ -31,7 +31,7 @@ mongoose
 	.connect(process.env.MONGO_URI)
 	.then((result) => {
 		console.log("connected to DB")
-		app.listen(() => {
+		app.listen(3000, () => {
 			console.log("listening on port 3000")
 		})
 	})

@@ -1,18 +1,8 @@
-const express = require("express");
-const { createWorkout, getWorkouts, getSingleWorkout, updateWorkout, deleteWorkout } = require("../controllers/workoutController");
-const { requireAuth } = require("../middlewares/requireAuth");
-const router = express.Router();
-
-router.use(requireAuth);
-
-router.get("/", getWorkouts);
-
-router.get("/:id", getSingleWorkout);
-
-router.post("/", createWorkout);
-
-router.patch("/:id", updateWorkout);
-
-router.delete("/:id", deleteWorkout);
-
-module.exports = router;
+async function createWorkout(req, res) {
+    try {
+        const workout = await Workout.create(req.body);
+        res.status(201).json(workout);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
