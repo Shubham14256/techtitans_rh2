@@ -1,39 +1,32 @@
-import { useState } from "react";
-import { useAuthContext } from "./useAuthContext";
-import { baseURL } from "../url";
+import { createContext, useEffect, useReducer } from "react";
 
-export const useLogin = () => {
-	const [error, setError] = useState(null);
-	const [isLoading, setIsLoading] = useState(null);
-	const { dispatch } = useAuthContext();
+export const AuthContext = createContext();
 
-	const login = async (email, password) => {
-		setIsLoading(true);
-		setError(null);
-
-		const response = await fetch(`${baseURL}/api/user/login`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ email, password }),
-		});
-
-		const data = await response.json();
-		console.log(data);
-
-		if (!response.ok) {
-			setIsLoading(false);
-			setError(data.error);
-		}
-
-		if (response.ok) {
-			setIsLoading(false);
-			setError(null);
-			localStorage.setItem("user", JSON.stringify(data));
-
-			dispatch({ type: "LOGIN", payload: data });
-		}
-	};
-	return { error, isLoading, login };
+export const authReducer = (state, action) => {
+	switch (action.type) {
+		case "LOGIN":
+			return { user: action.payload };
+		case "LOGOUT":
+			return { user: null };
+		default:
+			return state;
+	}
 };
+
+export const AuthContextProvider = ({ children }) => {
+	const [state, dispatch] = useReducer(authReducer, { user: null });
+
+	useEffect(() => {
+		const user = JSON.parse(localStorage.getItem("user"));
+
+		// Validate the user object
+		if (user && typeof user === 'object' && user !== null) {
+			dispatch({ type: "LOGIN", payload: user });
+		}
+	}, []);
+
+	console.log("Auth context state:", state);
+
+	return <AuthContext.Provider value={{ ...state, dispatch }}>{children}</AuthContext.Provider>;
+};
+
